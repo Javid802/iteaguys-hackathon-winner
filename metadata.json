@@ -1,0 +1,8 @@
+{
+  "name": "MAILGUARD.AI",
+  "description": "Enterprise-grade B2B email security and access control dashboard with AI-driven risk analysis.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
