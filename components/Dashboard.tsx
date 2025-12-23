@@ -1,12 +1,11 @@
 
 import React, { useState, useMemo } from 'react';
 import { User, UserRole, Email, ActivityLog, ProcessingStatus, DashboardTab } from '../types';
-// Fix: Import DEMO_USERS which was missing
-import { DEMO_USERS } from '../constants';
 import EmailList from './EmailList';
 import EmailComposer from './EmailComposer';
 import AdminStats from './AdminStats';
 import ActivityLogs from './ActivityLogs';
+import UserManagement from './UserManagement';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from 'recharts';
 import { 
   Shield, 
@@ -32,7 +31,8 @@ import {
   SendHorizontal,
   FileWarning,
   Activity,
-  ShieldCheck
+  ShieldCheck,
+  UserPlus
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -42,6 +42,9 @@ interface DashboardProps {
   onSendEmail: (email: Partial<Email>) => void;
   updateEmailStatus: (emailId: string, status: ProcessingStatus) => void;
   logs: ActivityLog[];
+  users: User[];
+  onAddUser: (userData: Omit<User, 'id' | 'avatar'>) => void;
+  onUpdateUser: (user: User) => void;
 }
 
 const SecurityReceiptModal: React.FC<{ email: Email; onClose: () => void }> = ({ email, onClose }) => {
@@ -74,7 +77,7 @@ const SecurityReceiptModal: React.FC<{ email: Email; onClose: () => void }> = ({
             <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-200">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Risk Level</span>
               <span className={`text-sm font-black uppercase ${isBlocked ? 'text-red-600' : isSafe ? 'text-emerald-600' : 'text-amber-600'}`}>
-                {email.threatLevel} ({email.riskScore}%)
+                {email.threatLevel} ({Math.round(email.riskScore)}%)
               </span>
             </div>
             
@@ -106,7 +109,7 @@ const SecurityReceiptModal: React.FC<{ email: Email; onClose: () => void }> = ({
   );
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, emails, onSendEmail, updateEmailStatus, logs }) => {
+const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, emails, onSendEmail, updateEmailStatus, logs, users, onAddUser, onUpdateUser }) => {
   const [activeTab, setActiveTab] = useState<DashboardTab>('inbox');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
@@ -140,6 +143,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, emails, onSendEma
     return ownedEmails.filter(e => e.riskScore > 70).length;
   }, [ownedEmails]);
 
+  const safetyIndex = useMemo(() => {
+    if (ownedEmails.length === 0) return 100;
+    const avgRisk = ownedEmails.reduce((acc, e) => acc + e.riskScore, 0) / ownedEmails.length;
+    return (100 - avgRisk).toFixed(1);
+  }, [ownedEmails]);
+
   const handleNewEmailSent = (emailData: Partial<Email>) => {
     const isBlocked = (emailData.riskScore || 0) > 70;
     const emailWithId = { 
@@ -156,7 +165,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, emails, onSendEma
   };
 
   const simulateAttack = () => {
-    // Fix: Explicitly cast 'threatLevel' and 'direction' to their union types to avoid assignment errors
     const attackEmail: Partial<Email> = {
       sender: 'it-security@malicious-node.net',
       recipient: user.email,
@@ -290,6 +298,21 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, emails, onSendEma
                    </div>
                 </div>
 
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  <div className="bg-white p-8 rounded-[40px] border border-slate-50 shadow-sm col-span-1 lg:col-span-2 relative overflow-hidden">
+                     <div className="flex justify-between items-start relative z-10">
+                        <div>
+                           <div className="flex items-center text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-3">
+                              <TrendingUp size={14} className="mr-2" />
+                              Personal Safety Index
+                           </div>
+                           <div className="text-4xl font-black text-slate-900 tracking-tighter">{safetyIndex}% Secure</div>
+                        </div>
+                        <div className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-black uppercase">Optimal</div>
+                     </div>
+                  </div>
+                </div>
+
                 <div className="pt-8">
                    <div className="flex items-center justify-between mb-10">
                       <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Communication Feed</h3>
@@ -326,16 +349,25 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, emails, onSendEma
                    <h2 className="text-5xl font-black text-slate-900 tracking-tighter">Admin Review Panel</h2>
                    <div className="flex items-center space-x-2 bg-indigo-50 text-indigo-600 px-4 py-2 rounded-2xl border border-indigo-100 font-black text-xs uppercase tracking-widest">
                       <ShieldAlert size={16} className="mr-2" />
-                      Pending Threat Analysis
+                      Global Infrastructure Control
                    </div>
                 </div>
+                
                 <AdminStats 
                   totalMails={emails.length} 
                   highRiskMails={emails.filter(e => e.riskScore > 70).length}
                   threatsBlocked={emails.filter(e => e.processingStatus === 'rejected_by_admin').length}
-                  activeUsers={DEMO_USERS.length + 1}
+                  activeUsers={users.length}
                 />
                 
+                <div className="mt-16">
+                  <UserManagement 
+                    users={users} 
+                    onAddUser={onAddUser} 
+                    onUpdateUser={onUpdateUser} 
+                  />
+                </div>
+
                 <div className="mt-16">
                   <h3 className="text-3xl font-black text-slate-900 mb-10 tracking-tighter">Escalated Communications</h3>
                   <EmailList 

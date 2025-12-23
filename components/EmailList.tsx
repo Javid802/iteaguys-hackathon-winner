@@ -14,7 +14,7 @@ const FactorBar: React.FC<{ label: string, value: number, color: string }> = ({ 
   <div className="space-y-1">
     <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest">
       <span>{label}</span>
-      <span>{value}%</span>
+      <span>{Math.round(value)}%</span>
     </div>
     <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
       <div 

@@ -7,6 +7,8 @@ interface RiskBadgeProps {
 }
 
 const RiskBadge: React.FC<RiskBadgeProps> = ({ level, score }) => {
+  const roundedScore = Math.round(score);
+  
   const getStyles = () => {
     switch (level) {
       case 'Low': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
@@ -24,7 +26,7 @@ const RiskBadge: React.FC<RiskBadgeProps> = ({ level, score }) => {
         level === 'Medium' ? 'bg-amber-500' : 
         level === 'High' ? 'bg-orange-500' : 'bg-red-500'
       }`}></span>
-      {level} • {score}%
+      {level} • {roundedScore}%
     </div>
   );
 };
