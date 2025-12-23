@@ -26,14 +26,15 @@ const SUBJECTS = [
   "Server Migration Schedule", "Customer Feedback Report", "Benefit Enrollment",
   "External: Job Opportunity", "Legacy System Patch", "Marketing Campaign Feedback",
   "API Key Rotation Notice", "Contract Renewal: Phase 2", "Payroll Adjustment",
-  "Internal: Holiday Schedule", "Vendor Security Assessment"
+  "Internal: Holiday Schedule", "Vendor Security Assessment", "Legal Discovery Request",
+  "Draft: Q4 Strategy", "Cloud Infrastructure Audit", "New Hire Onboarding"
 ];
 
 const SENDERS = [
   "hr@enterprise.com", "finance@globex.io", "support@microsoft.com", 
   "it-admin@secure.net", "no-reply@amazon.com", "billing@services.co",
   "hacker@suspicious-link.xyz", "ceo@internal-comms.com", "marketing@ad-agency.net",
-  "accounting@external-audit.com", "legal@corporate-counsel.io"
+  "accounting@external-audit.com", "legal@corporate-counsel.io", "security@cloud-gate.com"
 ];
 
 const BODIES = [
@@ -45,16 +46,19 @@ const BODIES = [
   "CONGRATULATIONS! You've won a $1000 Amazon gift card. Click the link to claim your prize immediately.",
   "The contract for the new vendor has arrived. Please review the terms before we finalize the deal.",
   "Emergency: Our main API gateway is down. We need the root access keys to restart the instance.",
-  "Hey, are you free? I need you to purchase some gift cards for a client. I'll reimburse you later."
+  "Hey, are you free? I need you to purchase some gift cards for a client. I'll reimburse you later.",
+  "As part of the annual audit, we require confirmation of all active server nodes and their encryption levels."
 ];
 
 const generateRandomEmails = (): Email[] => {
   const emails: Email[] = [];
   let idCounter = 1;
 
-  DEMO_USERS.forEach(user => {
-    // Generate 23 incoming emails for each user
-    for (let i = 0; i < 23; i++) {
+  const allUsers = [ADMIN_USER, ...DEMO_USERS];
+
+  allUsers.forEach(user => {
+    // Generate 25 incoming emails for each user
+    for (let i = 0; i < 25; i++) {
       const risk = Math.floor(Math.random() * 100);
       let level: 'Low' | 'Medium' | 'High' | 'Critical' = 'Low';
       if (risk > 85) level = 'Critical';
@@ -72,33 +76,33 @@ const generateRandomEmails = (): Email[] => {
         recipient: user.email,
         subject,
         body,
-        timestamp: new Date(Date.now() - Math.random() * 1500000000), // Random time in last ~17 days
+        timestamp: new Date(Date.now() - Math.random() * 2000000000), // Up to 23 days ago
         riskScore: risk,
         threatLevel: level,
         direction: 'received',
         processingStatus: status,
-        analysis: risk > 70 ? "Heuristic engine detected malicious patterns: Suspicious sender domain + urgency keywords." : "Email appears legitimate but contains standard business terminology.",
-        suggestions: risk > 70 ? ['Quarantine immediately', 'Contact sender via secondary channel'] : ['No action needed'],
+        analysis: risk > 70 ? "Automated scan flagged suspicious metadata and potential credential harvesting attempt." : "No malicious payloads detected. Standard business communication.",
+        suggestions: risk > 70 ? ['Quarantine', 'Reset User Password'] : ['Deliver to Inbox'],
         riskFactors: { content: risk * 0.3, attachment: risk * 0.4, links: risk * 0.2, context: risk * 0.1 }
       });
     }
 
-    // Generate 4 outgoing emails for each user
-    for (let i = 0; i < 4; i++) {
+    // Generate 5 outgoing history emails for each user
+    for (let i = 0; i < 5; i++) {
       emails.push({
         id: `e-gen-${idCounter++}`,
         sender: user.email,
         recipient: SENDERS[Math.floor(Math.random() * SENDERS.length)],
-        subject: `RE: ${SUBJECTS[Math.floor(Math.random() * SUBJECTS.length)]}`,
-        body: "Confirmed. I've updated the records accordingly. Let me know if you need anything else.",
-        timestamp: new Date(Date.now() - Math.random() * 800000000),
-        riskScore: 5,
+        subject: `Outgoing: ${SUBJECTS[Math.floor(Math.random() * SUBJECTS.length)]}`,
+        body: "Attached are the documents we discussed in the morning call. Please confirm receipt.",
+        timestamp: new Date(Date.now() - Math.random() * 1000000000),
+        riskScore: Math.floor(Math.random() * 15),
         threatLevel: 'Low',
         direction: 'sent',
         processingStatus: 'accepted',
-        analysis: 'Internal communication via verified endpoint.',
+        analysis: 'Internal outgoing communication from verified identity.',
         suggestions: [],
-        riskFactors: { content: 2, attachment: 0, links: 3, context: 0 }
+        riskFactors: { content: 5, attachment: 0, links: 2, context: 0 }
       });
     }
   });

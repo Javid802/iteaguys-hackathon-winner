@@ -31,7 +31,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, isLoading, error }) => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-600 rounded-2xl mb-6 shadow-2xl shadow-indigo-500/20 rotate-3">
             <Shield className="text-white w-10 h-10" />
           </div>
-          <h1 className="text-4xl font-bold text-white tracking-tight">MAILGUARD.AI</h1>
+          <h1 className="text-4xl font-bold text-white tracking-tight">MAILGUARD</h1>
           <p className="text-slate-400 mt-2 font-medium">B2B Security Control Center</p>
         </div>
 

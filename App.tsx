@@ -72,11 +72,11 @@ const App: React.FC = () => {
   const handleSendEmail = (emailData: Partial<Email>) => {
     const newEmail: Email = {
       ...emailData as Email,
-      id: `e-${Date.now()}`,
-      processingStatus: 'pending' // Sent mails start as pending for demo logic consistency
+      id: emailData.id || `e-${Date.now()}`,
+      processingStatus: emailData.processingStatus || 'pending'
     };
     setEmails(prev => [newEmail, ...prev]);
-    addLog(currentUser?.email || 'System', 'Email Processed', `Security scan result: ${newEmail.threatLevel} risk`);
+    addLog(currentUser?.email || 'System', 'Email Processed', `Security scan result: ${newEmail.threatLevel} risk [Status: ${newEmail.processingStatus}]`);
   };
 
   const updateEmailStatus = (emailId: string, status: ProcessingStatus) => {
